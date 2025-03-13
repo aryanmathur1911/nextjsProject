@@ -14,18 +14,28 @@ export default function ProfilePage() {
   const logout = async () => {
     try {
       await axios.get("/api/users/logout");
-      toast.success("logged out successfully");
+      toast.success("Logged out successfully");
       router.push("/login");
-    } catch (error: any) {
-      console.log(error.message);
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error.message);
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 
   const getUserName = async () => {
-    const res = await axios.get("/api/users/me");
-    const username = res.data.data.username;
-    setUsername(username);
+    try {
+      const res = await axios.get("/api/users/me");
+      const username = res.data.data.username;
+      setUsername(username);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error fetching username:", error.message);
+      }
+    }
   };
 
   useEffect(() => {
@@ -33,19 +43,29 @@ export default function ProfilePage() {
   }, []);
 
   const getUserDetails = async () => {
-    const res = await axios.get("/api/users/me");
-    console.log(res.data);
-    const data = res.data.data._id;
-    setData(data);
+    try {
+      const res = await axios.get("/api/users/me");
+      console.log(res.data);
+      const data = res.data.data._id;
+      setData(data);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error fetching user details:", error.message);
+      }
+    }
   };
 
   return (
     <div>
       <div>
         <h1>Profile {username}</h1>
-        <p>profile page</p>
+        <p>Profile page</p>
         <h1>
-          {data === null ? "no data about user" : <Link href={`/profile/${data}`}>{data}</Link>}
+          {data === null ? (
+            "No data about user"
+          ) : (
+            <Link href={`/profile/${data}`}>{data}</Link>
+          )}
         </h1>
       </div>
       <button
@@ -58,7 +78,7 @@ export default function ProfilePage() {
         onClick={getUserDetails}
         className="bg-green-400 p-2 rounded-md hover:scale-105 hover:bg-green-500 active:bg-green-600 block m-2"
       >
-        get user details
+        Get user details
       </button>
     </div>
   );

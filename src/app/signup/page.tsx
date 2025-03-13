@@ -6,20 +6,28 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+interface IUserSignup {
+  username: string;
+  email: string;
+  password: string;
+}
+
 export default function SignupPage() {
   const router = useRouter();
 
-  const [user, setUser] = useState({
+  const [user, setUser] = useState<IUserSignup>({
     username: "",
     email: "",
     password: "",
   });
 
-  const [signupButton, setSignupButton] = useState(false);
+  const [signupButton, setSignupButton] = useState<boolean>(false);
 
   useEffect(() => {
     if (user.username && user.email && user.password) {
       setSignupButton(true);
+    } else {
+      setSignupButton(false);
     }
   }, [user]);
 
@@ -31,8 +39,12 @@ export default function SignupPage() {
       setUser({ username: "", email: "", password: "" });
       setSignupButton(false);
       router.push("/login");
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 
@@ -51,21 +63,27 @@ export default function SignupPage() {
               type="text"
               placeholder="USERNAME"
               value={user.username}
-              onChange={(e) => setUser({ ...user, username: e.target.value })}
+              onChange={(e) =>
+                setUser({ ...user, username: e.target.value })
+              }
               className="border-2 rounded-md p-2 bg-white"
             />
             <input
               type="email"
               placeholder="EMAIL"
               value={user.email}
-              onChange={(e) => setUser({ ...user, email: e.target.value })}
+              onChange={(e) =>
+                setUser({ ...user, email: e.target.value })
+              }
               className="border-2 rounded-md p-2 bg-white"
             />
             <input
               type="password"
               placeholder="PASSWORD"
               value={user.password}
-              onChange={(e) => setUser({ ...user, password: e.target.value })}
+              onChange={(e) =>
+                setUser({ ...user, password: e.target.value })
+              }
               className="border-2 rounded-md p-2 bg-white"
             />
             <div>
@@ -81,7 +99,7 @@ export default function SignupPage() {
               )}
             </div>
             <span>
-              already a user ,{" "}
+              already a user,{" "}
               <Link className="font-semibold hover:underline" href="/login">
                 login
               </Link>

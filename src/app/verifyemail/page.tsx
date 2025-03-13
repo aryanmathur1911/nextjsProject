@@ -2,26 +2,33 @@
 
 import axios from "axios";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-export default function verifyEmailPage() {
+export default function VerifyEmailPage() {
   const [token, setToken] = useState("");
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
 
-  const verifyUserEmail = async () => {
+  const verifyUserEmail = useCallback(async () => {
     try {
       await axios.post("/api/users/verifyemail", { token });
       setVerified(true);
-    } catch (error: any) {
-      const errorMsg =
-        error.response && error.response.data && error.response.data.message
-          ? error.response.data.message
-          : "Verification failed";
+    } catch (error: unknown) {
+      let errorMsg = "Verification failed";
+      if (
+        axios.isAxiosError(error) &&
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        errorMsg = error.response.data.message;
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
       console.log(errorMsg);
       setError(errorMsg);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -33,12 +40,14 @@ export default function verifyEmailPage() {
     if (token.length > 0) {
       verifyUserEmail();
     }
-  }, [token]);
+  }, [token, verifyUserEmail]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <h1 className="text-4xl">Verify your email</h1>
-      <h2 className="bg-orange-500 p-2 text-black">{token ? token : "no token"}</h2>
+      <h2 className="bg-orange-500 p-2 text-black">
+        {token ? token : "no token"}
+      </h2>
       {verified && (
         <div className="text-black">
           <h1>Email Verified</h1>

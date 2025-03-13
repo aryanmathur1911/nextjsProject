@@ -6,14 +6,21 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+interface IUserLogin {
+  email: string;
+  password: string;
+}
+
 export default function LoginPage() {
   const router = useRouter();
-  const [loginButton, setLoginButton] = useState(false);
-  const [user, setUser] = useState({ email: "", password: "" });
+  const [loginButton, setLoginButton] = useState<boolean>(false);
+  const [user, setUser] = useState<IUserLogin>({ email: "", password: "" });
 
   useEffect(() => {
     if (user.email && user.password) {
       setLoginButton(true);
+    } else {
+      setLoginButton(false);
     }
   }, [user]);
 
@@ -26,9 +33,13 @@ export default function LoginPage() {
       setUser({ email: "", password: "" });
       setLoginButton(false);
       router.push("/profile");
-    } catch (error: any) {
-      console.log("login failed:", error.message);
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log("login failed:", error.message);
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 
