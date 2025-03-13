@@ -9,15 +9,14 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { token } = reqBody;
     console.log(token);
-    
+
     const user = await userModel.findOne({
       verifyToken: token,
       verifyTokenExpiry: { $gt: Date.now() },
     });
-    
+
     if (!user) {
-      // filepath: c:\Learning\web_devopment(hitesh_choudhary)\nextjs\authentication_system\src\app\api\users\verifyEmail\route.ts
-  console.log("User's token expiry:", user?.verifyTokenExpiry);
+      console.log("User's token expiry:", user?.verifyTokenExpiry);
       return NextResponse.json({ message: "Invalid token" }, { status: 400 });
     }
 
@@ -30,7 +29,10 @@ export async function POST(request: NextRequest) {
     await user.save();
 
     return NextResponse.json({ message: "Email verified", success: true });
-  } catch (error: any) {
-    NextResponse.json({ message: error.message }, { status: 400 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 400 });
+    }
+    return NextResponse.json({ message: "An unexpected error occurred" }, { status: 400 });
   }
 }

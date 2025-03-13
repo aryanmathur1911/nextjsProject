@@ -24,7 +24,8 @@ export default function verifyEmailPage() {
   };
 
   useEffect(() => {
-    const urlToken = window.location.search.split("=")[1];
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlToken = searchParams.get("token");
     setToken(urlToken || "");
   }, []);
 
@@ -37,19 +38,16 @@ export default function verifyEmailPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <h1 className="text-4xl">Verify your email</h1>
-      <h2 className="bg-orange-500 p-2 text-black">
-        {token ? `${token}` : "no token"}
-      </h2>
+      <h2 className="bg-orange-500 p-2 text-black">{token ? token : "no token"}</h2>
       {verified && (
         <div className="text-black">
           <h1>Email Verified</h1>
           <Link href="/login">Login</Link>
         </div>
       )}
-
       {error && (
         <div>
-          <h1 className="text-3xl text-black">Error!{error}</h1>
+          <h1 className="text-3xl text-black">Error! {error}</h1>
         </div>
       )}
     </div>

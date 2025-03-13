@@ -5,23 +5,31 @@ import connect from "@/dbConfig/dbConfig";
 
 await connect();
 
+interface IUserData {
+  id: string;
+  username: string;
+  email: string;
+}
 
-export  async  function GET(request : NextRequest){
-    try {
-
-        //getDataFromToken will return the data of user from his token 
-        //than we will find the user from the database using the user's id we got from the token
-        const userData : any = await getDataFromToken(request);
-        const user = await userModel.findOne({_id : userData.id}).select("-password");
-
-        //returning the user's info as response , user which we found in above line is stored in data key below.
-
-        //than this data is used in profile page.
-        return NextResponse.json({
-            message: "user found",
-            data : user
-        })
-    } catch (error : any) {
-        return NextResponse.json({error : error.message})
+export async function GET(request: NextRequest) {
+  try {
+    const tokenData = getDataFromToken(request);
+    const { id, username, email } = tokenData;
+    if (!id || !username || !email) {
+      throw new Error("Invalid token payload");
     }
+    const userData: IUserData = { id, username, email };
+
+    const user = await userModel.findOne({ _id: userData.id }).select("-password");
+
+    return NextResponse.json({
+      message: "user found",
+      data: user,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
+  }
 }
