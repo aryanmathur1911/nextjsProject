@@ -4,6 +4,7 @@ import connect from "@/dbConfig/dbConfig"
 import bcryptjs from "bcryptjs"
 
 import { NextRequest, NextResponse } from "next/server"
+import { sendEmail } from "@/helpers/mailer"
 
 
 export  async function POST(request : NextRequest){
@@ -34,6 +35,9 @@ export  async function POST(request : NextRequest){
         })
 
         console.log(createdUser);
+
+        //Sending an email
+        sendEmail({email, emailType : "VERIFY", userId : createdUser._id})
 
         return NextResponse.json({message : "user created successfully", succcess : true, createdUser})
         

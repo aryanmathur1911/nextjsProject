@@ -7,11 +7,11 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   //path which are open to everyone
-  const isPublicPath = path === "/login" || path === "/signup";
+  const isPublicPath = path === "/login" || path === "/signup" || path === "/verifyemail";
 
   // if its a public path
   if (isPublicPath && token) {
-    return NextResponse.redirect(new URL("/", request.nextUrl));
+    return NextResponse.redirect(new URL(`${path}`, request.nextUrl));
   }
 
   //if it is not a public path
@@ -22,5 +22,5 @@ export function middleware(request: NextRequest) {
 
 //routes on which you want to test middleware
 export const config = {
-  matcher: ["/", "/login", "/signup", "/profile"],
+  matcher: ["/", "/login", "/signup", "/profile","/verifyemail"],
 };
